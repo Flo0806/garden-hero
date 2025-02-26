@@ -8,6 +8,10 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+	<Application.Resources>
+		<!--<SolidColorBrush x:Key="StandardHalf" Color="Blue"></SolidColorBrush>-->
+	</Application.Resources>
+	
     <Application.DataTemplates>
         <local:ViewLocator/>
 		

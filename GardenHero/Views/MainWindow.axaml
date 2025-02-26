@@ -17,14 +17,19 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-	<Grid>
+	<Grid Background="WhiteSmoke">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
 		<sd:ToolBar />
-		
+
+		<sd:MonthSelection ArrayData="{Binding ArrayData}" Grid.Row="1">
+			<sd:MonthSelection.Resources>
+				<!--<SolidColorBrush x:Key="MonthItemEmptyBrush" Color="Pink"></SolidColorBrush>-->
+			</sd:MonthSelection.Resources>
+		</sd:MonthSelection>
 	<!--<Border Grid.Row="1">
 		<ContentControl Content="{Binding CurrentView}"/>
 	</Border>-->

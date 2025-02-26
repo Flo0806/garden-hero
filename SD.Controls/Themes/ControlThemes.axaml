@@ -11,8 +11,13 @@
 
 	<Styles.Resources>
 		<ResourceDictionary>
+		<SolidColorBrush x:Key="MonthItemEmptyBrush" Color="White"></SolidColorBrush>
+		<SolidColorBrush x:Key="MonthItemHalfBrush" Color="LightBlue"></SolidColorBrush>
+		<SolidColorBrush x:Key="MonthItemFullBrush" Color="#6296ab"></SolidColorBrush>
+			
 			<ResourceDictionary.MergedDictionaries>
 				<MergeResourceInclude Source="/Themes/Controls/ToolBar.axaml"/>
+				<MergeResourceInclude Source="/Themes/Controls/MonthSelection.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Styles.Resources>

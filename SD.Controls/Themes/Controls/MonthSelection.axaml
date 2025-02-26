@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:controls="using:SD.Controls.Controls"
+                    x:DataType="controls:MonthSelection">
+	<Design.PreviewWith>
+		<Border Padding="20">
+			<controls:MonthSelection />
+		</Border>
+	</Design.PreviewWith>
+	<ControlTheme x:Key="{x:Type controls:MonthSelection}" TargetType="controls:MonthSelection">
+		<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+		<Setter Property="Template">
+			<ControlTemplate>
+				<ItemsControl x:Name="PART_ItemsControl" ItemsSource="{TemplateBinding ActiveMonths}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel  Background="{DynamicResource SystemControlBackgroundAccentBrush}"  Orientation="Horizontal" Spacing="5" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<StackPanel>
+								<TextBlock TextTrimming="CharacterEllipsis" MaxWidth="20" TextAlignment="Center" FontSize="10" Foreground="{Binding $parent.Foreground}" Text="{Binding Name}" HorizontalAlignment="Center"/>
+								<Border x:Name="PART_Border" Width="20" Height="20" Classes="Empty" 
+										CornerRadius="3" HorizontalAlignment="Center">
+									<Border.Styles>
+										<Style Selector="Border.Empty">
+											<Setter Property="Background" Value="{DynamicResource MonthItemEmptyBrush}"/>
+										</Style>
+										<Style Selector="Border.Half">
+											<Setter Property="Background" Value="{DynamicResource MonthItemHalfBrush}"/>
+										</Style>
+										<Style Selector="Border.Full">
+											<Setter Property="Background" Value="{DynamicResource MonthItemFullBrush}"/>
+										</Style>
+									</Border.Styles>
+								</Border>
+							</StackPanel>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+</ResourceDictionary>

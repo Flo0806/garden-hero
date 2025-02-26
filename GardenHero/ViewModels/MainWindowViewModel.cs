@@ -17,6 +17,14 @@ namespace GardenHero.ViewModels
         [ObservableProperty]
         private ToolBarService _toolBarService;
 
+        [ObservableProperty]
+        private int[] _arrayData;
+
+        partial void OnArrayDataChanged(int[]? oldValue, int[] newValue)
+        {
+            
+        }
+
         public MainWindowViewModel()
         {
             CurrentView = new CategoryViewModel("Ein Test");
