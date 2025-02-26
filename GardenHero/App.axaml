@@ -1,0 +1,23 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="GardenHero.App"
+             xmlns:local="using:GardenHero"
+			 xmlns:vm="using:GardenHero.ViewModels"
+			 xmlns:view="using:GardenHero.Views"
+			 xmlns:sd="using:SD.Controls.Themes"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+		
+		<DataTemplate DataType="{x:Type vm:CategoryViewModel}">
+			<view:CategoryView />
+		</DataTemplate>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+		<sd:ControlThemes />
+    </Application.Styles>
+</Application>

@@ -1,0 +1,54 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:iconPacks="https://github.com/MahApps.IconPacks.Avalonia"
+                    xmlns:controls="using:SD.Controls.Controls"
+                    x:DataType="controls:ToolBar">
+
+	
+
+
+	<ControlTheme x:Key="{x:Type controls:ToolBar}" TargetType="controls:ToolBar">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border Background="{DynamicResource ToolbarBackgroundBrush}" Padding="8" CornerRadius="4">
+					<ItemsControl ItemsSource="{TemplateBinding Controls}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal" Spacing="2" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<ContentPresenter Content="{Binding}" />
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+						<ItemsControl.DataTemplates>
+							<!-- DataTemplates für Buttons und Separatoren -->
+							<DataTemplate DataType="{x:Type controls:ToolBarButton}">
+								<Button Command="{Binding Command}" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Name}">
+									<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+										<ContentControl Content="{Binding Icon}"
+														Foreground="Pink"
+														Width="24" Height="24"
+														HorizontalContentAlignment="Stretch"
+														VerticalContentAlignment="Stretch">
+											<ContentControl.Styles>
+												<Style Selector="ContentControl:disabled">
+													<Setter Property="Opacity" Value="0.5"/>
+												</Style>
+											</ContentControl.Styles>
+										</ContentControl>
+									</StackPanel>
+								</Button>
+							</DataTemplate>
+
+							<DataTemplate DataType="{x:Type controls:ToolBarSeparator}">
+								<Border Width="1" Background="LightGray" Margin="0,2,0,2" />
+							</DataTemplate>
+						</ItemsControl.DataTemplates>
+					</ItemsControl>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+</ResourceDictionary>
