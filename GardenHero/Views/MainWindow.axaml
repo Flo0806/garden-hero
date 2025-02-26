@@ -17,8 +17,9 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-	<Grid Background="WhiteSmoke">
+	<Grid Background="Gray">
 		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
@@ -30,6 +31,8 @@
 				<!--<SolidColorBrush x:Key="MonthItemEmptyBrush" Color="Pink"></SolidColorBrush>-->
 			</sd:MonthSelection.Resources>
 		</sd:MonthSelection>
+
+		<sd:MonthCalendar Grid.Row="2"/>
 	<!--<Border Grid.Row="1">
 		<ContentControl Content="{Binding CurrentView}"/>
 	</Border>-->

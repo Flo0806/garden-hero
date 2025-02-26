@@ -18,6 +18,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<MergeResourceInclude Source="/Themes/Controls/ToolBar.axaml"/>
 				<MergeResourceInclude Source="/Themes/Controls/MonthSelection.axaml"/>
+				<MergeResourceInclude Source="/Themes/Controls/MonthCalendar.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Styles.Resources>

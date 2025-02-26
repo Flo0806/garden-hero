@@ -6,10 +6,13 @@ using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
 using System.Collections.ObjectModel;
 using Avalonia.Controls.Metadata;
+using Avalonia.Threading;
+using System.Collections.Specialized;
 
 namespace SD.Controls.Controls
 {
     [TemplatePart("PART_ItemsControl", typeof(ItemsControl))]
+    [TemplatePart("PART_Border", typeof(Border))]
     public partial class MonthSelection: TemplatedControl
     {
         protected ItemsControl? ItemsControlPart { get; private set; }
@@ -27,6 +30,52 @@ namespace SD.Controls.Controls
             if (ItemsControlPart != null)
             {
                 ItemsControlPart.Loaded += ItemsControlPart_Loaded;
+                ItemsControlPart.Items.CollectionChanged += Items_CollectionChanged;
+            } else throw new ArgumentNullException("Cannot find ItemsControl");
+        }
+
+        #region Events
+        private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        var itemContainer = ItemsControlPart!.ContainerFromItem(item);
+                        if (itemContainer != null)
+                        {
+                            var borderControl = FindControl<Border>(itemContainer as Control, "PART_Border");
+                            if (borderControl != null)
+                                borderControl.PointerPressed -= BorderControl_PointerPressed;
+
+                        }
+                    });
+                }
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (var item in e.NewItems)
+                {
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        var itemContainer = ItemsControlPart!.ContainerFromItem(item);
+                        if (itemContainer != null)
+                        {
+                            var borderControl = FindControl<Border>(itemContainer as Control, "PART_Border");
+                            if (borderControl != null)
+                            {
+                                borderControl.PointerPressed += BorderControl_PointerPressed;
+                                borderControl.Classes.Clear();
+                                borderControl.Classes.Add("Empty");
+                            }
+                        }
+                    });
+                }
+
+                UpdateArray();
             }
         }
 
@@ -55,6 +104,7 @@ namespace SD.Controls.Controls
                 SetMonthItemsState(currentItem);
             }
         }
+        #endregion
 
         #region Dependency Properties
         public static readonly StyledProperty<int[]> ArrayDataProperty =

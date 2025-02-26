@@ -1,0 +1,109 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:controls="using:SD.Controls.Controls"
+					xmlns:converters="using:SD.Controls.Common.Converters"
+                    x:DataType="controls:MonthCalendar">
+
+	<converters:DayToPixelConverter x:Key="DayToPixelConverter"/>
+	<converters:ColumnToPixelConverter x:Key="ColumnToPixelConverter"/>
+	<converters:RowToPixelConverter x:Key="RowToPixelConverter"/>
+
+	<ControlTheme x:Key="{x:Type controls:MonthCalendar}" TargetType="controls:MonthCalendar">
+		<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
+					<!-- Monats-Header (Navigation, Monatstitel) -->
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Button x:Name="PART_PreviousButton" Content="◀"/>
+						<TextBlock Text="{Binding CurrentMonthText}" FontSize="16" FontWeight="Bold" />
+						<Button x:Name="PART_NextButton" Content="▶" />
+					</StackPanel>
+
+					<!-- Kalender-Grid (7x5) -->
+					<Grid Grid.Row="1">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<!-- Wochentage -->
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+
+						<!-- Wochentage -->
+						<TextBlock Grid.Column="0" Grid.Row="0" Text="Mo" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="1" Grid.Row="0" Text="Di" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="2" Grid.Row="0" Text="Mi" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="3" Grid.Row="0" Text="Do" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="4" Grid.Row="0" Text="Fr" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="5" Grid.Row="0" Text="Sa" HorizontalAlignment="Center"/>
+						<TextBlock Grid.Column="6" Grid.Row="0" Text="So" HorizontalAlignment="Center"/>
+
+						<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<UniformGrid Columns="7" Rows="5"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="5">
+										<Grid>
+											<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold"
+													   HorizontalAlignment="Right" VerticalAlignment="Top"/>
+										</Grid>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<!-- Ereignis-Balken -->
+						<Canvas Grid.Row="1" Grid.ColumnSpan="7">
+							<ItemsControl ItemsSource="{TemplateBinding Events}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border Background="Red" MinWidth="50"
+			Width="{Binding Duration, Converter={StaticResource DayToPixelConverter}, ConverterParameter={Binding $parent}}"
+			Height="15"
+			Canvas.Left="{Binding StartColumn, Converter={StaticResource ColumnToPixelConverter}, ConverterParameter={RelativeSource AncestorType=Grid}}"
+			Canvas.Top="{Binding StartRow, Converter={StaticResource RowToPixelConverter}, ConverterParameter={RelativeSource AncestorType=Grid}}"/>
+
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</Canvas>
+
+						<!--<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<UniformGrid Columns="7" Rows="5"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Border BorderBrush="Black" BorderThickness="1,1,0,0" Padding="5">
+										<Grid>
+											<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+											<TextBlock Text="{Binding DayName}" FontSize="10" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+										</Grid>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>-->
+					</Grid>
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+</ResourceDictionary>

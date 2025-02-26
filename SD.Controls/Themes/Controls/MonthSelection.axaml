@@ -14,14 +14,15 @@
 				<ItemsControl x:Name="PART_ItemsControl" ItemsSource="{TemplateBinding ActiveMonths}">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
-							<StackPanel  Background="{DynamicResource SystemControlBackgroundAccentBrush}"  Orientation="Horizontal" Spacing="5" />
+							<StackPanel Orientation="Horizontal" Spacing="5" />
+							<!--<StackPanel Background="{DynamicResource SystemControlBackgroundAccentBrush}"  Orientation="Horizontal" Spacing="5" />-->
 						</ItemsPanelTemplate>
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>
 						<DataTemplate>
 							<StackPanel>
 								<TextBlock TextTrimming="CharacterEllipsis" MaxWidth="20" TextAlignment="Center" FontSize="10" Foreground="{Binding $parent.Foreground}" Text="{Binding Name}" HorizontalAlignment="Center"/>
-								<Border x:Name="PART_Border" Width="20" Height="20" Classes="Empty" 
+								<Border x:Name="PART_Border" Width="20" Height="20" Classes="Empty" BorderThickness="1" BorderBrush="{DynamicResource RepeatButtonBorderBrush}" 
 										CornerRadius="3" HorizontalAlignment="Center">
 									<Border.Styles>
 										<Style Selector="Border.Empty">
