@@ -25,7 +25,7 @@ namespace GardenHero.ViewModels
 
             // Toolbar-Button registrieren
             ToolBarService.RegisterButton("save", "Speichern", IconPacks.Avalonia.BoxIcons.PackIconBoxIconsKind.SolidFilePlus , SaveCommand);
-            ToolBarService.RegisterSeparator();
+            ToolBarService.RegisterSeparator("first");
         }
 
         ~MainWindowViewModel()
@@ -40,6 +40,6 @@ namespace GardenHero.ViewModels
             // Speichern-Logik
         }
 
-        private bool SaveCommandCanExecute() => false;
+        private bool SaveCommandCanExecute() => true;
     }
 }

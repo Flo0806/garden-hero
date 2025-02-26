@@ -9,7 +9,7 @@ namespace SD.Controls.Controls
 {
     public partial class ToolBarSeparator: ToolBarControl
     {
-        public ToolBarSeparator()
+        public ToolBarSeparator(string id): base(id)
         { }
     }
 }

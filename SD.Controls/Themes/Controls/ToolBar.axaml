@@ -10,7 +10,7 @@
 	<ControlTheme x:Key="{x:Type controls:ToolBar}" TargetType="controls:ToolBar">
 		<Setter Property="Template">
 			<ControlTemplate>
-				<Border Background="{DynamicResource ToolbarBackgroundBrush}" Padding="8" CornerRadius="4">
+				<Border Background="{DynamicResource SystemControlBackgroundAccentBrush}" Padding="4" CornerRadius="0,0,4,4">
 					<ItemsControl ItemsSource="{TemplateBinding Controls}">
 						<ItemsControl.ItemsPanel>
 							<ItemsPanelTemplate>
@@ -28,7 +28,7 @@
 								<Button Command="{Binding Command}" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Name}">
 									<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
 										<ContentControl Content="{Binding Icon}"
-														Foreground="Pink"
+														Foreground="{TemplateBinding Foreground}"
 														Width="24" Height="24"
 														HorizontalContentAlignment="Stretch"
 														VerticalContentAlignment="Stretch">
@@ -43,10 +43,11 @@
 							</DataTemplate>
 
 							<DataTemplate DataType="{x:Type controls:ToolBarSeparator}">
-								<Border Width="1" Background="LightGray" Margin="0,2,0,2" />
+								<Border Width="1" Background="{DynamicResource SystemControlBackgroundBaseMediumBrush}" Margin="0,2,0,2" />
 							</DataTemplate>
 						</ItemsControl.DataTemplates>
 					</ItemsControl>
+					
 				</Border>
 			</ControlTemplate>
 		</Setter>

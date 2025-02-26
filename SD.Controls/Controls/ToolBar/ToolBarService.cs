@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Windows.Input;
 using IconPacks.Avalonia.BoxIcons;
+using System.Xml.Linq;
 
 namespace SD.Controls.Controls
 {
@@ -28,12 +29,6 @@ namespace SD.Controls.Controls
             Controls.Add(new ToolBarButton(id, name, iconKind, command));
         }
 
-        //public void RegisterButton(string id, string name, string iconKind, ICommand command)
-        //{
-        //    if (Controls.Any(b => b is ToolBarButton tbb && tbb.Id == id)) return; // Keine Duplikate
-        //    Controls.Add(new ToolBarButton(id, name, iconKind, command));
-        //}
-
         public void RemoveButton(string id)
         {
             var button = Controls.FirstOrDefault(b => b is ToolBarButton tbb && tbb.Id == id);
@@ -41,12 +36,20 @@ namespace SD.Controls.Controls
                 Controls.Remove(button);
         }
 
-        public void RegisterSeparator()
+        public void RegisterSeparator(string id)
         {
-            Controls.Add(new ToolBarSeparator());
+            if (Controls.Any(b => b is ToolBarSeparator tbs && tbs.Id == id)) return; // Keine Duplikate
+            Controls.Add(new ToolBarSeparator(id));
         }
 
-        public void ClearButtons()
+        public void RemoveSeparator(string id)
+        {
+            var separator = Controls.FirstOrDefault(b => b is ToolBarSeparator tbs && tbs.Id == id);
+            if (separator != null)
+                Controls.Remove(separator);
+        }
+
+        public void ClearControls()
         {
             Controls.Clear();
         }
