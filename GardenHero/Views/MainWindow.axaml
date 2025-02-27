@@ -26,9 +26,18 @@
 
 		<sd:ToolBar />
 
+		<!--<Grid>
+			<Grid PointerPressed="Grid_PointerPressed" Background="BlueViolet">
+				<Button ZIndex="2">Test 22</Button>
+			</Grid>
+			<Grid Background="Transparent" IsHitTestVisible="False">
+				<Button Background="Blue" IsHitTestVisible="True" Click="Button_Click">Hallo</Button>
+			</Grid>
+		</Grid>-->
+
 		<sd:MonthSelection ArrayData="{Binding ArrayData}" Grid.Row="1">
 			<sd:MonthSelection.Resources>
-				<!--<SolidColorBrush x:Key="MonthItemEmptyBrush" Color="Pink"></SolidColorBrush>-->
+				<SolidColorBrush x:Key="MonthItemEmptyBrush" Color="Pink"></SolidColorBrush>
 			</sd:MonthSelection.Resources>
 		</sd:MonthSelection>
 

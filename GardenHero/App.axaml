@@ -10,6 +10,7 @@
 
 	<Application.Resources>
 		<!--<SolidColorBrush x:Key="StandardHalf" Color="Blue"></SolidColorBrush>-->
+		<SolidColorBrush x:Key="RedBrush" Color="Blue"></SolidColorBrush>
 	</Application.Resources>
 	
     <Application.DataTemplates>

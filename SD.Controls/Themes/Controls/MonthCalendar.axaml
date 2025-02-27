@@ -8,6 +8,35 @@
 	<converters:ColumnToPixelConverter x:Key="ColumnToPixelConverter"/>
 	<converters:RowToPixelConverter x:Key="RowToPixelConverter"/>
 
+	<ControlTheme x:Key="{x:Type controls:EventControl}" TargetType="controls:EventControl">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border Background="{TemplateBinding Background}" Padding="5" CornerRadius="5">
+					<TextBlock Text="{TemplateBinding Title}" FontSize="10" Foreground="White"
+							   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+
+	<DataTemplate x:Key="DayTemplate">
+		<Border BorderBrush="Blue" BorderThickness="1" Padding="5">
+			<Grid>
+				<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold"
+						   HorizontalAlignment="Right" VerticalAlignment="Top"/>
+			</Grid>
+		</Border>
+	</DataTemplate>
+
+	<DataTemplate x:Key="EventTemplate">
+		<Border Padding="5" CornerRadius="5">
+			<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
+					   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Border>
+	</DataTemplate>
+
+
+
 	<ControlTheme x:Key="{x:Type controls:MonthCalendar}" TargetType="controls:MonthCalendar">
 		<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
 		<Setter Property="Template">
@@ -50,53 +79,133 @@
 						<TextBlock Grid.Column="5" Grid.Row="0" Text="Sa" HorizontalAlignment="Center"/>
 						<TextBlock Grid.Column="6" Grid.Row="0" Text="So" HorizontalAlignment="Center"/>
 
-						<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
+						<Grid x:Name="PART_Grid" Grid.Row="1" Grid.ColumnSpan="7">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="*" />
+								<RowDefinition Height="*" />
+								<RowDefinition Height="*" />
+								<RowDefinition Height="*" />
+								<RowDefinition Height="*" />
+							</Grid.RowDefinitions>
+						</Grid>
+
+						<!--<ItemsControl x:Name="PART_ItemsControl" Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
+							<ItemsControl.Styles>
+								<Style x:DataType="controls:CalendarDay" Selector="ItemsControl > ContentPresenter">
+									<Setter Property="Grid.Row" Value="{Binding GridRow}" />
+									<Setter Property="Grid.Column" Value="{Binding GridColumn}" />
+								</Style>
+							</ItemsControl.Styles>
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<UniformGrid Columns="7" Rows="5"/>
+									<Grid x:Name="PART_Grid">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+										</Grid.RowDefinitions>
+									</Grid>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
+
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="5">
+									<Border BorderBrush="Blue" BorderThickness="1" Padding="5"
+											>
 										<Grid>
+											-->
+						<!-- Tag-Nummer -->
+						<!--
 											<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold"
 													   HorizontalAlignment="Right" VerticalAlignment="Top"/>
+
+											-->
+						<!-- Events im Tag -->
+						<!--
+											<ItemsControl ItemsSource="{Binding TemplateBinding}">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate>
+														<Border Background="Blue" Padding="2" CornerRadius="3">
+
+															<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
+																	   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+														</Border>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
 										</Grid>
 									</Border>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
-						</ItemsControl>
+						</ItemsControl>-->
 
-						<!-- Ereignis-Balken -->
-						<Canvas Grid.Row="1" Grid.ColumnSpan="7">
-							<ItemsControl ItemsSource="{TemplateBinding Events}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate>
-										<Border Background="Red" MinWidth="50"
-			Width="{Binding Duration, Converter={StaticResource DayToPixelConverter}, ConverterParameter={Binding $parent}}"
-			Height="15"
-			Canvas.Left="{Binding StartColumn, Converter={StaticResource ColumnToPixelConverter}, ConverterParameter={RelativeSource AncestorType=Grid}}"
-			Canvas.Top="{Binding StartRow, Converter={StaticResource RowToPixelConverter}, ConverterParameter={RelativeSource AncestorType=Grid}}"/>
 
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</Canvas>
-
-						<!--<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
+						<!-- Events (Balken) als Grid -->
+						<!--<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding RenderEvents}">
+							<ItemsControl.Styles>
+								<Style x:DataType="controls:RenderEvent" Selector="ItemsControl > ContentPresenter">
+									<Setter Property="Grid.Row" Value="{Binding GridRow}" />
+									<Setter Property="Grid.Column" Value="{Binding GridColumn}" />
+									<Setter Property="Grid.ColumnSpan" Value="{Binding ColumnSpan}" />
+								</Style>
+							</ItemsControl.Styles>
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<UniformGrid Columns="7" Rows="5"/>
+									<Grid>
+										-->
+						<!-- Definiere die 7 Spalten -->
+						<!--
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+
+										-->
+						<!-- Definiere die 5 Zeilen -->
+						<!--
+										<Grid.RowDefinitions>
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+											<RowDefinition Height="*" />
+										</Grid.RowDefinitions>
+									</Grid>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
+
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<Border BorderBrush="Black" BorderThickness="1,1,0,0" Padding="5">
+									<Border Background="Red" Padding="5" CornerRadius="5">
 										<Grid>
-											<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-											<TextBlock Text="{Binding DayName}" FontSize="10" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-										</Grid>
+										<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
+												   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+											</Grid>
 									</Border>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
