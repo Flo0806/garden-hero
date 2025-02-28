@@ -139,6 +139,7 @@ namespace SD.Controls.Controls
             }
 
             // 🔹 Events ins Grid setzen
+            var margin = 0;
             foreach (var evt in RenderEvents)
             {
                 var eventControl = new EventControl
@@ -146,7 +147,8 @@ namespace SD.Controls.Controls
                     Title = evt.Title,
                     Background = this.FindResource(evt.ColorKey) is SolidColorBrush solidColorBrush
                 ? solidColorBrush
-                : Brushes.Transparent
+                : Brushes.Transparent,
+                    DataContext = evt
                 };
 
                 Grid.SetColumn(eventControl, evt.GridColumn);
@@ -175,9 +177,10 @@ namespace SD.Controls.Controls
             foreach (var evt in Events)
             {
                 DateTime tempStart = evt.StartDate;
+
                 while (tempStart <= evt.EndDate)
                 {
-                    int weekRow = GetGridRow(tempStart); // Berechnung der Zeile (Woche)
+                    int weekRow = GetGridRow(tempStart); // Zeile berechnen (Woche)
                     int startColumn = (int)tempStart.DayOfWeek == 0 ? 6 : (int)tempStart.DayOfWeek - 1;
                     DateTime weekEnd = tempStart.AddDays(6 - startColumn);
 
@@ -200,31 +203,41 @@ namespace SD.Controls.Controls
                     tempStart = weekEnd.AddDays(1);
                 }
             }
-        
-            // 🔹 Schritt 2: Events pro Woche sortieren (Priorität: Früher → Länger → Kürzer)
+
+            // 🔹 Events pro Woche sortieren (Priorität: Früher → Länger → Kürzer)
             var groupedEvents = tempRenderEvents.GroupBy(e => e.GridRow)
                 .ToDictionary(g => g.Key, g => g.OrderBy(e => e.StartDate).ThenByDescending(e => e.ColumnSpan).ToList());
 
-            // 🔹 Schritt 3: Maximal 3 Events pro Woche anzeigen
-            foreach (var week in groupedEvents)
-            {
-                int visibleCount = 0;
+            // 🔹 Maximale Anzahl pro Zeile setzen (z. B. max 2)
+            const int maxEventsPerRow = 2;
+            const int marginStep = 25;
 
-                foreach (var renderEvent in week.Value)
+            var finalRenderEvents = new ObservableCollection<RenderEvent>();
+
+            foreach (var weekRow in groupedEvents.Keys)
+            {
+                var placedEvents = new List<RenderEvent>();
+
+                foreach (var evt in groupedEvents[weekRow])
                 {
-                    if (visibleCount < 3)
+                    // Prüfen, ob Platz in der Zeile ist
+                    if (placedEvents.Count < maxEventsPerRow)
                     {
-                        RenderEvents.Add(renderEvent);
-                        visibleCount++;
+                        evt.CellMargin = new Thickness(0, placedEvents.Count * marginStep, 0, 0);
+                        placedEvents.Add(evt);
+                        finalRenderEvents.Add(evt);
                     }
                     else
                     {
-                        // Falls mehr als 3 Events → "Mehr anzeigen" setzen (später für Button-Logik)
-                        //MoreEventsIndicator[week.Key] = true;
+                        // Sobald ein Event nicht platziert werden kann, bleibt es komplett unsichtbar
                         break;
                     }
                 }
             }
+
+            // 🔹 finalRenderEvents enthält jetzt nur Events, die wirklich angezeigt werden
+            RenderEvents = finalRenderEvents;
+
         }
 
 
@@ -245,6 +258,9 @@ namespace SD.Controls.Controls
             // Test-Events für den aktuellen Monat hinzufügen (inklusive mehrtägiger Events)
             Events.Clear();
             Events.Add(new CalendarEvent { Title = "Tomaten säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 5), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
+            Events.Add(new CalendarEvent { Title = "Gurken säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 6), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8) });
+            Events.Add(new CalendarEvent { Title = "Birnen säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
+            Events.Add(new CalendarEvent { Title = "Äpfel säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9) });
 
             // Alle Events für den aktuellen Monat holen
             var eventsInMonth = Events.Where(e => e.StartDate.Month == CurrentMonth.Month || e.EndDate.Month == CurrentMonth.Month).ToList();

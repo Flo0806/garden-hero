@@ -9,6 +9,9 @@
 	<converters:RowToPixelConverter x:Key="RowToPixelConverter"/>
 
 	<ControlTheme x:Key="{x:Type controls:EventControl}" TargetType="controls:EventControl">
+		<Setter Property="Height" Value="20"/>
+		<Setter Property="VerticalAlignment" Value="Top"/>
+		<Setter Property="Margin" Value="{Binding CellMargin}"/>
 		<Setter Property="Template">
 			<ControlTemplate>
 				<Border Background="{TemplateBinding Background}" Padding="5" CornerRadius="5">

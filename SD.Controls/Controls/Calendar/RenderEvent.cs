@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 
 namespace SD.Controls.Controls
 {
@@ -15,6 +16,8 @@ namespace SD.Controls.Controls
         public int GridColumn { get; set; }
         public int ColumnSpan { get; set; }
         public string ColorKey { get; set; }
+
+        public Thickness CellMargin { get; set; } = new Thickness(0);
     }
 
 }
