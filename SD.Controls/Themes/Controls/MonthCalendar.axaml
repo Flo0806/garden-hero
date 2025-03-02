@@ -14,25 +14,40 @@
 		<Setter Property="Margin" Value="{Binding CellMargin}"/>
 		<Setter Property="Template">
 			<ControlTemplate>
-				<Border Background="{TemplateBinding Background}" Padding="5" CornerRadius="5">
+				<Border  Background="{TemplateBinding Background}" Padding="5" CornerRadius="5"
+						 Classes.Selected="{Binding IsSelected}">
 					<TextBlock Text="{TemplateBinding Title}" FontSize="10" Foreground="White"
-							   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							   HorizontalAlignment="Center" VerticalAlignment="Center" />
+					<Border.Styles>
+						<!-- 🔹 Stil für ausgewählte Events -->
+						<Style Selector="Border.Selected">
+							<Setter Property="BorderBrush" Value="{DynamicResource SystemControlFocusVisualPrimaryBrush}"/>
+							<Setter Property="BorderThickness" Value="1"/>
+						</Style>
+					</Border.Styles>
 				</Border>
 			</ControlTemplate>
 		</Setter>
 	</ControlTheme>
 
 	<DataTemplate x:Key="DayTemplate">
-		<Border BorderBrush="Blue" BorderThickness="1" Padding="5">
+		<Border BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}" BorderThickness="1,1,0,0" Padding="5"
+				>
 			<Grid>
-				<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold"
-						   HorizontalAlignment="Right" VerticalAlignment="Top"/>
-			</Grid>
+				<TextBlock Classes.CurrentMonth="{Binding IsCurrentMonth}" Text="{Binding DayNumber}" FontSize="15" FontWeight="Bold"
+						   HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+					<TextBlock.Styles>
+							<Style Selector="TextBlock.CurrentMonth">
+								<Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundBaseHighBrush}" />
+							</Style>
+						</TextBlock.Styles>
+				</TextBlock>
+			</Grid>		
 		</Border>
 	</DataTemplate>
 
 	<DataTemplate x:Key="EventTemplate">
-		<Border Padding="5" CornerRadius="5">
+		<Border Padding="5" CornerRadius="3">
 			<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
 					   HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		</Border>
@@ -50,9 +65,9 @@
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 					<!-- Monats-Header (Navigation, Monatstitel) -->
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
 						<Button x:Name="PART_PreviousButton" Content="◀"/>
-						<TextBlock Text="{Binding CurrentMonthText}" FontSize="16" FontWeight="Bold" />
+						<TextBlock Text="{TemplateBinding CurrentMonthText}" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="10,0,10,0" />
 						<Button x:Name="PART_NextButton" Content="▶" />
 					</StackPanel>
 
@@ -82,6 +97,7 @@
 						<TextBlock Grid.Column="5" Grid.Row="0" Text="Sa" HorizontalAlignment="Center"/>
 						<TextBlock Grid.Column="6" Grid.Row="0" Text="So" HorizontalAlignment="Center"/>
 
+						<Border BorderThickness="0,0,1,1" BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}" Grid.Row="1" Grid.ColumnSpan="7"/>
 						<Grid x:Name="PART_Grid" Grid.Row="1" Grid.ColumnSpan="7">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*" />
@@ -98,121 +114,9 @@
 								<RowDefinition Height="*" />
 								<RowDefinition Height="*" />
 								<RowDefinition Height="*" />
+								<RowDefinition Height="*" />
 							</Grid.RowDefinitions>
 						</Grid>
-
-						<!--<ItemsControl x:Name="PART_ItemsControl" Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding Days}">
-							<ItemsControl.Styles>
-								<Style x:DataType="controls:CalendarDay" Selector="ItemsControl > ContentPresenter">
-									<Setter Property="Grid.Row" Value="{Binding GridRow}" />
-									<Setter Property="Grid.Column" Value="{Binding GridColumn}" />
-								</Style>
-							</ItemsControl.Styles>
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<Grid x:Name="PART_Grid">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-										</Grid.ColumnDefinitions>
-										<Grid.RowDefinitions>
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-										</Grid.RowDefinitions>
-									</Grid>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Border BorderBrush="Blue" BorderThickness="1" Padding="5"
-											>
-										<Grid>
-											-->
-						<!-- Tag-Nummer -->
-						<!--
-											<TextBlock Text="{Binding DayNumber}" FontSize="12" FontWeight="Bold"
-													   HorizontalAlignment="Right" VerticalAlignment="Top"/>
-
-											-->
-						<!-- Events im Tag -->
-						<!--
-											<ItemsControl ItemsSource="{Binding TemplateBinding}">
-												<ItemsControl.ItemTemplate>
-													<DataTemplate>
-														<Border Background="Blue" Padding="2" CornerRadius="3">
-
-															<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
-																	   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-														</Border>
-													</DataTemplate>
-												</ItemsControl.ItemTemplate>
-											</ItemsControl>
-										</Grid>
-									</Border>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>-->
-
-
-						<!-- Events (Balken) als Grid -->
-						<!--<ItemsControl Grid.ColumnSpan="7" Grid.Row="1" ItemsSource="{TemplateBinding RenderEvents}">
-							<ItemsControl.Styles>
-								<Style x:DataType="controls:RenderEvent" Selector="ItemsControl > ContentPresenter">
-									<Setter Property="Grid.Row" Value="{Binding GridRow}" />
-									<Setter Property="Grid.Column" Value="{Binding GridColumn}" />
-									<Setter Property="Grid.ColumnSpan" Value="{Binding ColumnSpan}" />
-								</Style>
-							</ItemsControl.Styles>
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<Grid>
-										-->
-						<!-- Definiere die 7 Spalten -->
-						<!--
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="*" />
-										</Grid.ColumnDefinitions>
-
-										-->
-						<!-- Definiere die 5 Zeilen -->
-						<!--
-										<Grid.RowDefinitions>
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-											<RowDefinition Height="*" />
-										</Grid.RowDefinitions>
-									</Grid>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Border Background="Red" Padding="5" CornerRadius="5">
-										<Grid>
-										<TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
-												   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-											</Grid>
-									</Border>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>-->
 					</Grid>
 				</Grid>
 			</ControlTemplate>

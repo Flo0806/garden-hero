@@ -12,4 +12,8 @@
     <PackageReference Include="IconPacks.Avalonia" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Services\" />
+  </ItemGroup>
+
 </Project>

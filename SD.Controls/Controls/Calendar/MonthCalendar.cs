@@ -3,21 +3,15 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using SD.Controls.Controls;
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Markup.Xaml.Templates;
+using System.ComponentModel;
 
 namespace SD.Controls.Controls
 {
     [TemplatePart("PART_PreviousButton", typeof(Button))]
     [TemplatePart("PART_NextButton", typeof(Button))]
+    [TemplatePart("PART_Grid", typeof(Grid))]
     public partial class MonthCalendar : TemplatedControl
     {
         protected Button? PreviousButtonPart { get; private set; }
@@ -26,7 +20,61 @@ namespace SD.Controls.Controls
 
         static MonthCalendar()
         {
+            CurrentMonthProperty.Changed.AddClassHandler<MonthCalendar>((x, e) =>
+            {
+                if (e.NewValue != null && e.NewValue is DateTime newMonthDate)
+                {
+                    x.CurrentMonthText = newMonthDate.ToString("MMMM yyyy");
+                }
+            });
+
+            EventsProperty.Changed.AddClassHandler<MonthCalendar>((x, e) =>
+            {
+                x.Events.CollectionChanged += (sender, e) =>
+                {
+                    if (e.NewItems != null)
+                    {
+                        foreach (CalendarEvent evt in e.NewItems)
+                        {
+                            evt.PropertyChanged += x.CalendarEventChanged;
+                        }
+                    }
+
+                    if (e.OldItems != null)
+                    {
+                        foreach (CalendarEvent evt in e.OldItems)
+                        {
+                            evt.PropertyChanged -= x.CalendarEventChanged;
+                        }
+                    }
+
+                    x.UpdateRenderEvents(); // Falls ein Event hinzugefügt/entfernt wurde, RenderEvents neu berechnen
+                    x.RenderEventsToCalendar();
+                };
+
+                foreach (var evt in x.Events)
+                {
+                    evt.PropertyChanged += x.CalendarEventChanged;
+                }
+
+                x.UpdateRenderEvents();
+                x.RenderEventsToCalendar();
+            });
             AffectsRender<MonthCalendar>(CurrentMonthProperty);
+        }
+
+        public MonthCalendar()
+        {
+        }
+
+        private void CalendarEventChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is CalendarEvent evt)
+            {
+                Console.WriteLine($"Event geändert: {evt.Title}, Property: {e.PropertyName}");
+                UpdateRenderEvents(); // RenderEvents neu berechnen
+                RenderEventsToCalendar();
+            }
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -35,11 +83,9 @@ namespace SD.Controls.Controls
 
             PreviousButtonPart = e.NameScope.Get<Button>("PART_PreviousButton");
             NextButtonPart = e.NameScope.Get<Button>("PART_NextButton");
-            // var itemsControl = e.NameScope.Get<ItemsControl>("PART_ItemsControl");
+
             CalendarGridPart = e.NameScope.Get<Grid>("PART_Grid");
-           
-           //itemsControl.Loaded += ItemsControl_Loaded;
-           
+
             if (PreviousButtonPart == null || NextButtonPart == null)
             {
                 throw new ArgumentNullException("Cannot find navigation buttons");
@@ -53,26 +99,45 @@ namespace SD.Controls.Controls
 
         private void ItemsControl_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            var test = (sender as ItemsControl).Presenter.Panel;
-            BuildCalendarGrid(test as Grid);
+            RenderDaysToCalendar();
+            RenderEventsToCalendar();
         }
 
+        #region Custom Events
+        public event EventHandler<RenderEvent?>? EventSelectionChanged;
+
+        public event EventHandler<DateTime>? CurrentMonthChanged;
+
+        public event EventHandler<CalendarEvent>? CalendarEventDoubleClicked;
+        #endregion
 
         #region Events
         private void NextButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             CurrentMonth = CurrentMonth.AddMonths(1);
+            CurrentMonthChanged?.Invoke(this, CurrentMonth);
             UpdateCalendar();
         }
 
         private void PreviousButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             CurrentMonth = CurrentMonth.AddMonths(-1);
+            CurrentMonthChanged?.Invoke(this, CurrentMonth);
             UpdateCalendar();
         }
         #endregion
 
         #region Dependency Properties
+        // CurrentMonthText
+        public static readonly StyledProperty<string> CurrentMonthTextProperty =
+    AvaloniaProperty.Register<MonthCalendar, string>(nameof(CurrentMonthText), DateTime.Now.ToString("MMMM yyyy"));
+
+        public string CurrentMonthText
+        {
+            get => GetValue(CurrentMonthTextProperty);
+            set => SetValue(CurrentMonthTextProperty, value);
+        }
+
         public static readonly StyledProperty<DateTime> CurrentMonthProperty =
             AvaloniaProperty.Register<MonthCalendar, DateTime>(nameof(CurrentMonth), defaultValue: DateTime.Today);
 
@@ -83,7 +148,7 @@ namespace SD.Controls.Controls
         }
 
         public static readonly StyledProperty<ObservableCollection<CalendarDay>> DaysProperty =
-            AvaloniaProperty.Register<MonthSelection, ObservableCollection<CalendarDay>>(nameof(Days), new ObservableCollection<CalendarDay>());
+            AvaloniaProperty.Register<MonthCalendar, ObservableCollection<CalendarDay>>(nameof(Days), new ObservableCollection<CalendarDay>());
 
         public ObservableCollection<CalendarDay> Days
         {
@@ -92,7 +157,7 @@ namespace SD.Controls.Controls
         }
 
         public static readonly StyledProperty<ObservableCollection<RenderEvent>> RenderEventsProperty =
-           AvaloniaProperty.Register<MonthSelection, ObservableCollection<RenderEvent>>(nameof(RenderEvents), new ObservableCollection<RenderEvent>());
+           AvaloniaProperty.Register<MonthCalendar, ObservableCollection<RenderEvent>>(nameof(RenderEvents), new ObservableCollection<RenderEvent>());
 
         public ObservableCollection<RenderEvent> RenderEvents
         {
@@ -101,7 +166,7 @@ namespace SD.Controls.Controls
         }
 
         public static readonly StyledProperty<ObservableCollection<CalendarEvent>> EventsProperty =
-    AvaloniaProperty.Register<MonthCalendar, ObservableCollection<CalendarEvent>>(nameof(Events), new ObservableCollection<CalendarEvent>());
+        AvaloniaProperty.Register<MonthCalendar, ObservableCollection<CalendarEvent>>(nameof(Events));
 
         public ObservableCollection<CalendarEvent> Events
         {
@@ -112,18 +177,25 @@ namespace SD.Controls.Controls
         #endregion
 
         #region Helper
-
-        private void BuildCalendarGrid(Grid calendarGrid)
+        private void RenderDaysToCalendar()
         {
-            if (calendarGrid == null) return;
+            if (CalendarGridPart == null) return;
 
-            calendarGrid.Children.Clear();
+            var calendarGrid = CalendarGridPart!;
 
-            // 🔹 DataTemplates abrufen
-            var dayTemplate = this.FindResource("DayTemplate") as DataTemplate; // (DataTemplate)Application.Current.Resources["DayTemplate"];
-            var eventTemplate = this.FindResource("EventTemplate") as DataTemplate; // (DataTemplate)Application.Current.Resources["EventTemplate"];
+            // Alle ContentControls mit CalendarDay aus der Children-Collection entfernen
+            var daysToRemove = calendarGrid.Children
+                .OfType<ContentControl>()
+                .Where(cc => cc.Content is CalendarDay)
+                .ToList();
 
-            // 🔹 Tage ins Grid setzen
+            foreach (var dayControl in daysToRemove)
+            {
+                calendarGrid.Children.Remove(dayControl);
+            }
+
+            var dayTemplate = this.FindResource("DayTemplate") as DataTemplate;
+
             foreach (var day in Days)
             {
                 var dayControl = new ContentControl
@@ -137,17 +209,33 @@ namespace SD.Controls.Controls
 
                 calendarGrid.Children.Add(dayControl);
             }
+        }
 
-            // 🔹 Events ins Grid setzen
-            var margin = 0;
+
+        private void RenderEventsToCalendar()
+        {
+            if (CalendarGridPart == null) return;
+
+            var calendarGrid = CalendarGridPart!;
+
+            // Alle EventControls aus der Children-Collection entfernen
+            var eventsToRemove = calendarGrid.Children != null ? calendarGrid.Children
+                .OfType<EventControl>()
+                .ToList() : new List<EventControl>();
+
+            foreach (var eventControl in eventsToRemove)
+            {
+                calendarGrid.Children!.Remove(eventControl);
+            }
+
             foreach (var evt in RenderEvents)
             {
                 var eventControl = new EventControl
                 {
                     Title = evt.Title,
                     Background = this.FindResource(evt.ColorKey) is SolidColorBrush solidColorBrush
-                ? solidColorBrush
-                : Brushes.Transparent,
+                        ? solidColorBrush
+                        : Brushes.Transparent,
                     DataContext = evt
                 };
 
@@ -155,28 +243,90 @@ namespace SD.Controls.Controls
                 Grid.SetRow(eventControl, evt.GridRow);
                 Grid.SetColumnSpan(eventControl, evt.ColumnSpan);
 
-                calendarGrid.Children.Add(eventControl);
+                // 🔹 EventControls IMMER oben rendern
+                eventControl.ZIndex = 2;
+
+                // 🔹 Click-Event → Alle Segmente des Events markieren
+                eventControl.PointerPressed += (sender, e) =>
+                {
+                    bool isSelected = !evt.IsSelected; // Umschalten
+
+                    // Alle Events deselektieren
+                    foreach (var instance in RenderEvents)
+                    {
+                        instance.IsSelected = false;
+                    }
+
+                    // Nur geklicktes selektieren
+                    foreach (var instance in RenderEvents.Where(x => x.Id == evt.Id))
+                    {
+                        instance.IsSelected = isSelected;
+                    }
+                };
+
+                eventControl.DoubleTapped += (sender, e) =>
+                {
+                    CalendarEvent? currentEvent = Events.Where(ev => ev.Id == evt.EventId).FirstOrDefault();
+                    if (currentEvent != null)
+                        CalendarEventDoubleClicked?.Invoke(this, currentEvent);
+                };
+
+                calendarGrid.Children!.Add(eventControl);
             }
         }
 
 
         private int GetGridRow(DateTime date)
         {
-            int firstDayOfMonth = (int)new DateTime(date.Year, date.Month, 1).DayOfWeek;
-            firstDayOfMonth = firstDayOfMonth == 0 ? 6 : firstDayOfMonth - 1; // Sonntag ist 6
-            return (date.Day + firstDayOfMonth - 1) / 7;
+            // 🔹 Berechne den ersten sichtbaren Tag (inkl. Vormonats-Tage)
+            DateTime firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+            int firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            firstDayOfWeek = firstDayOfWeek == 0 ? 7 : firstDayOfWeek; // Sonntag als 7
+
+            int visiblePrevMonthDays = firstDayOfWeek - 1;
+            DateTime firstVisibleDay = firstDayOfMonth.AddDays(-visiblePrevMonthDays);
+
+            // 🔹 Korrekte Berechnung der Woche anhand des ersten sichtbaren Tages
+            return (date - firstVisibleDay).Days / 7;
         }
 
-        #endregion
 
         private void UpdateRenderEvents()
         {
             RenderEvents.Clear();
             var tempRenderEvents = new List<RenderEvent>();
 
+            // 🔹 Berechnung der sichtbaren Tage (einschließlich Vormonat & Folgemonat)
+            DateTime firstDayOfMonth = new(CurrentMonth.Year, CurrentMonth.Month, 1);
+            int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
+            DateTime lastDayOfMonth = firstDayOfMonth.AddDays(daysInMonth - 1);
+
+            // 🔹 Vormonats-Tage berechnen
+            DateTime prevMonth = firstDayOfMonth.AddMonths(-1);
+            int prevMonthDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+            int firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            firstDayOfWeek = firstDayOfWeek == 0 ? 7 : firstDayOfWeek; // Sonntag als 7
+
+            int visiblePrevMonthDays = firstDayOfWeek - 1;
+            DateTime firstVisibleDay = firstDayOfMonth.AddDays(-visiblePrevMonthDays);
+
+            // 🔹 Folgemonats-Tage berechnen
+            int totalVisibleDays = visiblePrevMonthDays + daysInMonth;
+            int remainingDays = (totalVisibleDays % 7 == 0) ? 0 : 7 - (totalVisibleDays % 7);
+            DateTime lastVisibleDay = lastDayOfMonth.AddDays(remainingDays);
+
+            // 🔹 Alle relevanten Events filtern
             foreach (var evt in Events)
             {
-                DateTime tempStart = evt.StartDate;
+                // 🔹 Nur Events anzeigen, die im sichtbaren Bereich sind
+                if (evt.EndDate < firstVisibleDay || evt.StartDate > lastVisibleDay)
+                    continue;
+
+                Guid eventId = Guid.NewGuid(); // 🔹 Eine GUID für alle Segmente des Events
+
+                // 🔹 Startzeitpunkt begrenzen
+                DateTime tempStart = evt.StartDate < firstVisibleDay ? firstVisibleDay : evt.StartDate;
+                if (tempStart > lastVisibleDay) continue; // Falls Start außerhalb des sichtbaren Bereichs ist, überspringen
 
                 while (tempStart <= evt.EndDate)
                 {
@@ -187,10 +337,19 @@ namespace SD.Controls.Controls
                     if (weekEnd > evt.EndDate)
                         weekEnd = evt.EndDate;
 
+                    if (weekEnd > lastVisibleDay)
+                        weekEnd = lastVisibleDay; // Begrenzung auf den sichtbaren Bereich
+
+                    // **Fix: Falls tempStart bereits nach lastVisibleDay liegt, Schleife beenden**
+                    if (tempStart > lastVisibleDay)
+                        break;
+
                     int columnSpan = (weekEnd - tempStart).Days + 1;
 
                     tempRenderEvents.Add(new RenderEvent
                     {
+                        Id = eventId, // 🔹 Jedes Segment bekommt die gleiche ID!
+                        EventId = evt.Id, // Verknüpft mit dem Event
                         Title = evt.Title,
                         StartDate = tempStart,
                         EndDate = weekEnd,
@@ -201,6 +360,10 @@ namespace SD.Controls.Controls
                     });
 
                     tempStart = weekEnd.AddDays(1);
+
+                    // **Fix: Falls tempStart bereits nach lastVisibleDay liegt, Schleife beenden**
+                    if (tempStart > lastVisibleDay)
+                        break;
                 }
             }
 
@@ -208,9 +371,10 @@ namespace SD.Controls.Controls
             var groupedEvents = tempRenderEvents.GroupBy(e => e.GridRow)
                 .ToDictionary(g => g.Key, g => g.OrderBy(e => e.StartDate).ThenByDescending(e => e.ColumnSpan).ToList());
 
-            // 🔹 Maximale Anzahl pro Zeile setzen (z. B. max 2)
-            const int maxEventsPerRow = 2;
+            // 🔹 Maximale Anzahl pro Zeile setzen (z. B. max 3)
+            const int maxEventsPerRow = 3;
             const int marginStep = 25;
+            const int firstMarginHeight = 25; // Allererster Abstand
 
             var finalRenderEvents = new ObservableCollection<RenderEvent>();
 
@@ -223,7 +387,7 @@ namespace SD.Controls.Controls
                     // Prüfen, ob Platz in der Zeile ist
                     if (placedEvents.Count < maxEventsPerRow)
                     {
-                        evt.CellMargin = new Thickness(0, placedEvents.Count * marginStep, 0, 0);
+                        evt.CellMargin = new Thickness(0, placedEvents.Count * marginStep + firstMarginHeight, 0, 0);
                         placedEvents.Add(evt);
                         finalRenderEvents.Add(evt);
                     }
@@ -237,8 +401,8 @@ namespace SD.Controls.Controls
 
             // 🔹 finalRenderEvents enthält jetzt nur Events, die wirklich angezeigt werden
             RenderEvents = finalRenderEvents;
-
         }
+
 
 
         /// <summary>
@@ -256,11 +420,11 @@ namespace SD.Controls.Controls
             int columnIndex = 0;
 
             // Test-Events für den aktuellen Monat hinzufügen (inklusive mehrtägiger Events)
-            Events.Clear();
-            Events.Add(new CalendarEvent { Title = "Tomaten säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 5), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
-            Events.Add(new CalendarEvent { Title = "Gurken säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 6), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8) });
-            Events.Add(new CalendarEvent { Title = "Birnen säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
-            Events.Add(new CalendarEvent { Title = "Äpfel säen", ColorKey = "RedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9) });
+
+            //Events.Add(new CalendarEvent { Title = "Tomaten säen", ColorKey = "EventRedBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 5), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
+            //Events.Add(new CalendarEvent { Title = "Gurken säen", ColorKey = "EventBlueBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 6), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8) });
+            //Events.Add(new CalendarEvent { Title = "Birnen säen", ColorKey = "EventVioletBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 8), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 10) });
+            //Events.Add(new CalendarEvent { Title = "Äpfel säen", ColorKey = "EventGreenBrush", StartDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9), EndDate = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 9) });
 
             // Alle Events für den aktuellen Monat holen
             var eventsInMonth = Events.Where(e => e.StartDate.Month == CurrentMonth.Month || e.EndDate.Month == CurrentMonth.Month).ToList();
@@ -312,7 +476,7 @@ namespace SD.Controls.Controls
             }
 
             // 🌟 Nächster Monat auffüllen
-            for (int i = 1; Days.Count < 35; i++)
+            for (int i = 1; Days.Count < 42; i++)
             {
                 if (columnIndex == 7)
                 {
@@ -337,40 +501,11 @@ namespace SD.Controls.Controls
 
             UpdateRenderEvents();
 
-            BuildCalendarGrid(CalendarGridPart);
+            //BuildCalendarGrid(CalendarGridPart!);
+            RenderDaysToCalendar();
+            RenderEventsToCalendar();
         }
-
-
-
-
-
-       
-
-        public override void Render(DrawingContext context)
-        {
-            base.Render(context);
-            return;
-            //if (Days == null || Days.Count == 0) return;
-
-            //foreach (var evt in Events)
-            //{
-            //    int startColumn = evt.StartColumn;
-            //    int startRow = evt.StartRow;
-            //    int duration = evt.Duration;
-
-            //    double cellWidth = Bounds.Width / 7;  // 7 Spalten
-            //    double cellHeight = Bounds.Height / 5; // 5 Zeilen
-
-            //    double x = startColumn * cellWidth;
-            //    double y = startRow * cellHeight + 80;
-            //    double width = duration * cellWidth;
-
-            //    var rect = new Rect(x, y, width, 10);
-            //    var brush = new SolidColorBrush(Avalonia.Media.Colors.Blue);
-
-            //    context.DrawRectangle(brush, null, rect, 5);
-            //}
-        }
+        #endregion
     }
 }
 

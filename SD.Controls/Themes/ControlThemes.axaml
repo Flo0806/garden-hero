@@ -15,7 +15,12 @@
 			<SolidColorBrush x:Key="MonthItemHalfBrush" Color="LightBlue"></SolidColorBrush>
 			<SolidColorBrush x:Key="MonthItemFullBrush" Color="#6296ab"></SolidColorBrush>
 
-			<SolidColorBrush x:Key="RedBrush" Color="#ff0000"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventRedBrush" Color="Red"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventGreenBrush" Color="Green"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventBlueBrush" Color="Blue"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventOrangeBrush" Color="Orange"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventYellowBrush" Color="Yellow"></SolidColorBrush>
+			<SolidColorBrush x:Key="EventVioletBrush" Color="Violet"></SolidColorBrush>
 
 			<ResourceDictionary.MergedDictionaries>
 				<MergeResourceInclude Source="/Themes/Controls/ToolBar.axaml"/>

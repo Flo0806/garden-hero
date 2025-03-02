@@ -9,12 +9,7 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void Grid_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-
-    }
-
-    private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void MonthCalendar_CalendarEventDoubleClicked(object? sender, SD.Controls.Controls.CalendarEvent e)
     {
     }
 }
